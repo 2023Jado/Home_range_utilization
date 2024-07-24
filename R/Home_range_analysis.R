@@ -1,4 +1,5 @@
 library(ggplot2)
+library(patchwork)
 library(dplyr)
 
 # Read the files
@@ -68,6 +69,46 @@ ggplot(data = summary_stats) +
   ylab("Area (km²)") +
   theme(legend.position = "bottom")
 
-# Find the effect of vegetation zone on the home range size ###################
-# ############################################################################
+# Correlation between home range size and various factors
+# #######################################################
+
+# Correlation between home range size and elevation
+# #################################################
+cor.test(as.numeric(hom_monthly$Average_Elevation_DEM), as.numeric(hom_monthly$Area_km2), method = "spearman",
+         conf.level = 0.90)
+
+qplot(x = Average_Elevation_DEM, y = Area_km2, data = hom_monthly) +
+  geom_smooth(method = "lm") + xlab("Average elevation [m]") +
+  ylab("Area [km2]") + xlim(min(hom_monthly$Average_Elevation_DEM), max(hom_monthly$Average_Elevation_DEM)) +
+  ylim(min(hom_monthly$Area_km2), max(hom_monthly$Area_km2))
+
+# Correlation between home range size and N of GPS locations
+# ##########################################################
+cor.test(as.numeric(hom_monthly$Nb_of_GPS), as.numeric(hom_monthly$Area_km2), method = "spearman",
+         conf.level = 0.90)
+
+qplot(x = Nb_of_GPS, y = Area_km2, data = hom_monthly) +
+  geom_smooth(method = "lm") + xlab("Number of GPS points") +
+  ylab("Area [km2]") + xlim(min(hom_monthly$Nb_of_GPS), max(hom_monthly$Nb_of_GPS)) +
+  ylim(min(hom_monthly$Area_km2), max(hom_monthly$Area_km2))
+
+# Correlation between home range size and N interactions
+# ######################################################
+cor.test(as.numeric(hom_monthly$N_of_interactions), as.numeric(hom_monthly$Area_km2), method = "spearman",
+         conf.level = 0.90)
+
+qplot(x = N_of_interactions, y = Area_km2, data = hom_monthly) +
+  geom_smooth(method = "lm") + xlab("Number of interactions") +
+  ylab("Area [km2]") + xlim(min(hom_monthly$N_of_interactions), max(hom_monthly$N_of_interactions)) +
+  ylim(min(hom_monthly$Area_km2), max(hom_monthly$Area_km2))
+
+# Correlation between home range size and N of individuals
+# ########################################################
+cor.test(as.numeric(hom_monthly$N_of_individuals), as.numeric(hom_monthly$Area_km2), method = "spearman",
+         conf.level = 0.90)
+
+qplot(x = N_of_individuals, y = Area_km2, data = hom_monthly) +
+  geom_smooth(method = "lm") + xlab("Number of individuals") +
+  ylab("Area [km2]") + xlim(min(hom_monthly$N_of_individuals), max(hom_monthly$N_of_individuals)) +
+  ylim(min(hom_monthly$Area_km2), max(hom_monthly$Area_km2))
 
