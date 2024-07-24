@@ -70,3 +70,4 @@ ggplot(data = summary_stats) +
 
 # Find the effect of vegetation zone on the home range size ###################
 # ############################################################################
+
