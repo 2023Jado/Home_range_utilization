@@ -127,11 +127,11 @@ nrow(veg_hom_50)
 
 # Add new columns for each unique zone, indicating presence (1) or absence (0)
 for (zone in unique(veg_hom_90$Zones)) {
-  veg_hom_90[[zone]] <- ifelse(veg_hom_90$Zones == zone, 1, 0)
+  veg_hom_90[[zone]] <- ifelse(veg_hom_90$Zones == zone, veg_hom_90$Area_veg_km2, 0)
 }
 
 for (zone in unique(veg_hom_50$Zones)) {
-  veg_hom_50[[zone]] <- ifelse(veg_hom_50$Zones == zone, 1, 0)
+  veg_hom_50[[zone]] <- ifelse(veg_hom_50$Zones == zone, veg_hom_50$Area_veg_km2, 0)
 }
 
 # Then use glm and GAM to model the effect of vegetation zone on home range size
@@ -154,9 +154,47 @@ glm_model_90 <- glm(Area_km2 ~ Herbaceous + Bamboo + Hagenia_forest +
                    Outside_of_the_park + Sub_alpine + Alpine +
                    Meadow + Mimulopsis + Mixed_forest + Brush_ridges,
                  data = veg_hom_90,
-                 family = gaussian,
+                 family = gaussian(),
                  model = TRUE, method = "glm.fit")
 
-# Summarize GLM results: 90% KDE
+# Summarize GLM results: 50% KDE
 summary(glm_model_90)
 
+# Fit a GLM model: 50% KDE
+glm_model_50 <- glm(Area_km2 ~ Herbaceous + Bamboo + Hagenia_forest +
+                      Outside_of_the_park + Sub_alpine + Alpine +
+                      Meadow + Mimulopsis + Mixed_forest + Brush_ridges,
+                    data = veg_hom_50,
+                    family = gaussian(),
+                    model = TRUE, method = "glm.fit")
+
+# Summarize GLM results: 50% KDE
+summary(glm_model_50)
+
+# Fit a GAM model: 90% KDE
+gam_model_90 <- gam(Area_km2 ~ s(Herbaceous) + s(Bamboo) + s(Hagenia_forest) +
+                      s(Outside_of_the_park) + s(Sub_alpine) + s(Alpine) +
+                      s(Meadow) + s(Mimulopsis) + s(Mixed_forest) + s(Brush_ridges),
+                    data = veg_hom_90,
+                    family = gaussian(),
+                    method = "GCV.Cp")
+
+# Summarize GAM results: 90% KDE
+summary(gam_model_90)
+
+# Visualize the smooth effects of the GAM model
+plot(gam_model_90, pages = 1, all.terms = TRUE)
+
+# Fit a GAM model: 50% KDE
+gam_model_50 <- gam(Area_km2 ~ s(Herbaceous) + s(Bamboo) + s(Hagenia_forest) +
+                      s(Outside_of_the_park) + s(Sub_alpine) + s(Alpine) +
+                      s(Meadow) + s(Mimulopsis) + s(Mixed_forest) + s(Brush_ridges),
+                    data = veg_hom_50,
+                    family = gaussian(),
+                    method = "GCV.Cp")
+
+# Summarize GAM results: 50% KDE
+summary(gam_model_50)
+
+# Visualize the smooth effects of the GAM model
+plot(gam_model_50, pages = 1, all.terms = TRUE)
