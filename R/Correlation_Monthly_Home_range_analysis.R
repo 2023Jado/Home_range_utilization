@@ -142,12 +142,18 @@ names(veg_hom_90) <- gsub(" ", "_", names(veg_hom_90))
 names(veg_hom_50) <- gsub(" ", "_", names(veg_hom_50))
 
 # Subset the data
-veg_hm_90 <- veg_hom_90[, c(1:9, 11, 13:25)]
-veg_hm_50 <- veg_hom_50[, c(1:9, 11, 13:25)]
+veg_hom_90 <- veg_hom_90 %>%
+  select(-Zones, -Area_veg_km2)
+
+veg_hom_50 <- veg_hom_50 %>%
+  select(-Zones, -Area_veg_km2)
 
 # remove the entire duplicate rows
-veg_hom_90 <- veg_hm_90[!duplicated(veg_hm_90), ]
-veg_hom_50 <- veg_hm_50[!duplicated(veg_hm_50), ]
+veg_hom_90 <- veg_hom_90[!duplicated(veg_hm_90), ]
+veg_hom_50 <- veg_hom_50[!duplicated(veg_hm_50), ]
+
+# ############## GLM ######################
+# ########################################
 
 # Fit a GLM model: 90% KDE
 glm_model_90 <- glm(Area_km2 ~ Herbaceous + Bamboo + Hagenia_forest +
@@ -171,10 +177,25 @@ glm_model_50 <- glm(Area_km2 ~ Herbaceous + Bamboo + Hagenia_forest +
 # Summarize GLM results: 50% KDE
 summary(glm_model_50)
 
+##################### GAM ######################
+# #############################################
+
+# Check the number of unique values in each predictor: 90% KDE
+unique_values <- sapply(veg_hom_90, function(x) length(unique(x)))
+print(unique_values)
+
 # Fit a GAM model: 90% KDE
-gam_model_90 <- gam(Area_km2 ~ s(Herbaceous) + s(Bamboo) + s(Hagenia_forest) +
-                      s(Outside_of_the_park) + s(Sub_alpine) + s(Alpine) +
-                      s(Meadow) + s(Mimulopsis) + s(Mixed_forest) + s(Brush_ridges),
+gam_model_90 <- gam(Area_km2 ~
+                      s(Herbaceous, k=30) +
+                      s(Bamboo, k=33) +
+                      s(Hagenia_forest, k=29) +
+                      s(Outside_of_the_park, k=33) +
+                      s(Sub_alpine, k=27) +
+                      s(Alpine, k=20) +
+                      s(Meadow, k=33) +
+                      s(Mimulopsis, k=13) +
+                      s(Mixed_forest, k=6) +
+                      s(Brush_ridges, k=14),
                     data = veg_hom_90,
                     family = gaussian(),
                     method = "GCV.Cp")
@@ -185,10 +206,22 @@ summary(gam_model_90)
 # Visualize the smooth effects of the GAM model
 plot(gam_model_90, pages = 1, all.terms = TRUE)
 
+# Check the number of unique values in each predictor: 50% KDE
+unique_values <- sapply(veg_hom_50, function(x) length(unique(x)))
+print(unique_values)
+
 # Fit a GAM model: 50% KDE
-gam_model_50 <- gam(Area_km2 ~ s(Herbaceous) + s(Bamboo) + s(Hagenia_forest) +
-                      s(Outside_of_the_park) + s(Sub_alpine) + s(Alpine) +
-                      s(Meadow) + s(Mimulopsis) + s(Mixed_forest) + s(Brush_ridges),
+gam_model_50 <- gam(Area_km2 ~
+                      s(Herbaceous, k=28) +
+                      s(Bamboo, k=29) +
+                      s(Hagenia_forest, k=29) +
+                      s(Outside_of_the_park, k=27) +
+                      s(Sub_alpine, k=22) +
+                      s(Alpine, k=15) +
+                      s(Meadow, k=19) +
+                      s(Mimulopsis, k=8) +
+                      s(Mixed_forest, k=6) +
+                      s(Brush_ridges, k=9),
                     data = veg_hom_50,
                     family = gaussian(),
                     method = "GCV.Cp")
