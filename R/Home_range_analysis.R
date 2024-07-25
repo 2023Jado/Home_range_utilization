@@ -1,6 +1,7 @@
 library(ggplot2)
 library(patchwork)
 library(dplyr)
+library(mgcv)
 
 # Read the files
 hom_monthly <- read.csv("C:/Users/Jado/Documents/DFGF/RE_HR_analysis_2020-2022/Final_dataset/Ready_for_analysis/Home ranges_KRC_RDB_monthly_elevation_2020-2022.csv", header=T)
@@ -118,26 +119,44 @@ qplot(x = N_of_individuals, y = Area_km2, data = hom_monthly) +
 
 # Let's start with percentage kernel:90
 # #####################################
-
-veg_hom_90 <- hom_veg %>%
-  filter(Percentage == 90)
+veg_hom_90 <- subset(hom_veg, Percentage == 90)
 nrow(veg_hom_90)
 
-veg_hom_50 <- hom_veg %>%
-  filter(Percentage == 50)
+veg_hom_50 <- subset(hom_veg, Percentage == 50)
 nrow(veg_hom_50)
 
 # Add new columns for each unique zone, indicating presence (1) or absence (0)
-veg_hom_90_trans <- for (zone in unique(veg_hom_90$Zones)) {
+for (zone in unique(veg_hom_90$Zones)) {
   veg_hom_90[[zone]] <- ifelse(veg_hom_90$Zones == zone, 1, 0)
 }
 
-veg_hom_50_trans <- for (zone in unique(veg_hom_50$Zones)) {
+for (zone in unique(veg_hom_50$Zones)) {
   veg_hom_50[[zone]] <- ifelse(veg_hom_50$Zones == zone, 1, 0)
 }
 
 # Then use glm and GAM to model the effect of vegetation zone on home range size
 # ##############################################################################
 
-# Fit a GLM model
+# remove the spaces in the column names
+names(veg_hom_90) <- gsub(" ", "_", names(veg_hom_90))
+names(veg_hom_50) <- gsub(" ", "_", names(veg_hom_50))
+
+# Subset the data
+veg_hm_90 <- veg_hom_90[, c(1:9, 11, 13:25)]
+veg_hm_50 <- veg_hom_50[, c(1:9, 11, 13:25)]
+
+# remove the entire duplicate rows
+veg_hom_90 <- veg_hm_90[!duplicated(veg_hm_90), ]
+veg_hom_50 <- veg_hm_50[!duplicated(veg_hm_50), ]
+
+# Fit a GLM model: 90% KDE
+glm_model_90 <- glm(Area_km2 ~ Herbaceous + Bamboo + Hagenia_forest +
+                   Outside_of_the_park + Sub_alpine + Alpine +
+                   Meadow + Mimulopsis + Mixed_forest + Brush_ridges,
+                 data = veg_hom_90,
+                 family = gaussian,
+                 model = TRUE, method = "glm.fit")
+
+# Summarize GLM results: 90% KDE
+summary(glm_model_90)
 
