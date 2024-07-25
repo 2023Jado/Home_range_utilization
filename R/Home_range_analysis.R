@@ -5,6 +5,7 @@ library(dplyr)
 # Read the files
 hom_monthly <- read.csv("C:/Users/Jado/Documents/DFGF/RE_HR_analysis_2020-2022/Final_dataset/Ready_for_analysis/Home ranges_KRC_RDB_monthly_elevation_2020-2022.csv", header=T)
 hom_annual <- read.csv("C:/Users/Jado/Documents/DFGF/RE_HR_analysis_2020-2022/Final_dataset/Ready_for_analysis/Home ranges_KRC_RDB_elevation_annual_2020-2022.csv", header=T)
+hom_veg <- read.csv("C:/Users/Jado/Documents/DFGF/RE_HR_analysis_2020-2022/Final_dataset/Ready_for_analysis/Home ranges_KRC_RDB_veg_zones_monthly_elevation_2020-2022.csv", header=T)
 
 # First objective: Compare the monthly and annual home range sizes for groups ##
 # ranging in Eastern versus those in the Western part of the VNP and determine##
@@ -111,4 +112,32 @@ qplot(x = N_of_individuals, y = Area_km2, data = hom_monthly) +
   geom_smooth(method = "lm") + xlab("Number of individuals") +
   ylab("Area [km2]") + xlim(min(hom_monthly$N_of_individuals), max(hom_monthly$N_of_individuals)) +
   ylim(min(hom_monthly$Area_km2), max(hom_monthly$Area_km2))
+
+# Effect of vegetation zone on home range size
+# ############################################
+
+# Let's start with percentage kernel:90
+# #####################################
+
+veg_hom_90 <- hom_veg %>%
+  filter(Percentage == 90)
+nrow(veg_hom_90)
+
+veg_hom_50 <- hom_veg %>%
+  filter(Percentage == 50)
+nrow(veg_hom_50)
+
+# Add new columns for each unique zone, indicating presence (1) or absence (0)
+veg_hom_90_trans <- for (zone in unique(veg_hom_90$Zones)) {
+  veg_hom_90[[zone]] <- ifelse(veg_hom_90$Zones == zone, 1, 0)
+}
+
+veg_hom_50_trans <- for (zone in unique(veg_hom_50$Zones)) {
+  veg_hom_50[[zone]] <- ifelse(veg_hom_50$Zones == zone, 1, 0)
+}
+
+# Then use glm and GAM to model the effect of vegetation zone on home range size
+# ##############################################################################
+
+# Fit a GLM model
 
