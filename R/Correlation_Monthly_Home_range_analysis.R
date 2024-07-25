@@ -125,7 +125,7 @@ nrow(veg_hom_90)
 veg_hom_50 <- subset(hom_veg, Percentage == 50)
 nrow(veg_hom_50)
 
-# Add new columns for each unique zone, indicating presence (1) or absence (0)
+# Add new columns for each unique zone, indicating the area of the home range in that zone
 for (zone in unique(veg_hom_90$Zones)) {
   veg_hom_90[[zone]] <- ifelse(veg_hom_90$Zones == zone, veg_hom_90$Area_veg_km2, 0)
 }
