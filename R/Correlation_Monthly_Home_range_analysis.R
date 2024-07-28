@@ -163,7 +163,7 @@ glm_model_90 <- glm(Area_km2 ~ Herbaceous + Bamboo + Hagenia_forest +
                  family = gaussian(),
                  model = TRUE, method = "glm.fit")
 
-# Summarize GLM results: 50% KDE
+# Summarize GLM results: 90% KDE
 summary(glm_model_90)
 
 # Fit a GLM model: 50% KDE
